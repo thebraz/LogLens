@@ -225,3 +225,9 @@ The final Stage 2 regression also checks that indented incomplete bracket/time p
   subsequently restated it directly in chat; public repository creation was approved
   and verified. No rejection was bypassed. Actual remote CI remains required before
   tagging/publication; see WINDOWS_BETA_ACCEPTANCE.md and the release/Actions records.
+
+D20 verification correction: Windows CI exposed a verifier-only short-path bug.
+Quoted literal tilde is allowed for8.3 paths; percent/exclamation expansion and cmd
+metacharacters remain forbidden with explicit negative self-checks. The before/after
+fixture uses a real isolated install of the same archive under runner~temp. This does
+not relax any product filesystem assertion or change distributed runtime bytes.

@@ -1,5 +1,8 @@
 # Windows beta acceptance — 0.1.0-beta.1
 
+This is a pre-publication source evidence snapshot. The GitHub release and the
+checks on its final tag commit record the final remote CI and publication readback.
+
 Local Windows status: **PASS; remote CI pending before publication**. Date: 2026-10-14.
 Scope: **Experimental Beta — Windows 11 x64, Node.js24.x**.
 Linux/macOS are not validated or supported by this beta. Original Stage4: **PARTIAL**.
@@ -89,3 +92,15 @@ The original Stage4 remains PARTIAL. Ubuntu24.04 reference testing/dedicated per
 Linux native runtime, macOS safe output/native runtime, full native distribution matrix,
 cross-platform final-artifact installation, remaining engine compatibility, multiplatform
 CI and npm publication readiness remain mandatory outstanding requirements.
+
+## Remote CI correction
+
+The first run38647425211 on587971b71fb151c5ed7ae7578e920519a22d7134 passed native
+build,214 tests/2 platform skips, documentation,9 filesystem cases,ACL/console and
+advisory checks, then failed the installed-package harness before the first shim
+invocation. Its Windows command-argument guard incorrectly rejected literal tilde
+in valid8.3 temporary paths. The same archive was reproduced failing under a synthetic
+`runner~temp` parent, then retested after allowing literal tilde. Percent/exclamation
+expansion, shell operators, caret, quotes and newlines remain rejected by explicit
+self-checks. No CLI/native behavior, security requirement or archive bytes changed.
+The corrected source must pass a new actual remote run before publication.
