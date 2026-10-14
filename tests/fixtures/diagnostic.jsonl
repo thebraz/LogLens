@@ -1,0 +1,10 @@
+{"time":0,"level":"info","message":"start","service":"api","requestId":"R","traceId":"T","spanId":"S"}
+{"time":1000,"level":"error","message":"TypeError: failed account 123","service":"api","stack":"  at work (a.js:1:2)","requestId":"R","traceId":"T"}
+{"time":2000,"level":"warn","message":"retry","service":"api","requestId":"R"}
+{"time":3000,"level":"error","message":"TypeError: failed account 123","service":"api","stack":"  at work (a.js:9:7)","requestId":"R"}
+{"time":4000,"level":"fatal","message":"TypeError: failed account 123","service":"api","stack":"  at work (a.js:1:2)"}
+{"time":5000,"level":"error","message":"TypeError: failed account 456","service":"api","stack":"  at work (a.js:1:2)"}
+{"level":"error","message":"no clock"}
+{"level":"info","message":"untimed"}
+{"time":"bad","level":"error","message":"TypeError: failed account 123","service":"api","stack":"  at work (a.js:5:8)"}
+{bad

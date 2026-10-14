@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:loglens:output:v1",
+  "title": "LogLens output v1",
+  "description": "Deterministic JSON envelope. Byte caps, conservation invariants, diagnostic ordering and namespace semantics are additional constraints in docs/CLI_CONTRACT.md.",
+  "type": "object", "additionalProperties": false,
+  "required": ["schemaVersion","command","coverage","redaction","issues","stats","sources","summary","events","groups","correlations","timeline","analysis"],
+  "properties": {
+    "schemaVersion": {"const":"loglens.output.v1"},
+    "command": {"enum":["inspect","search","group","report"]},
+    "coverage": {"enum":["complete","partial"]},
+    "redaction": {"type":"object","additionalProperties":false,"required":["enabled","policyVersion"],"properties":{"enabled":{"type":"boolean"},"policyVersion":{"const":1}}},
+    "issues": {"type":"array","uniqueItems":true,"items":{"enum":["RUN_BYTE_LIMIT","AGGREGATION_LIMIT","HASH_COLLISION"]}},
+    "stats": {"type":"object","additionalProperties":false,"required":["bytesRead","physicalLines","blankLines","eventsRead","damagedEvents","selectedEvents","matchedEvents","emittedMatches","contextEvents","timeExcludedMissing","diagnosticCounts"],"properties":{
+      "bytesRead":{"$ref":"#/definitions/count"},"physicalLines":{"$ref":"#/definitions/count"},"blankLines":{"$ref":"#/definitions/count"},"eventsRead":{"$ref":"#/definitions/count"},"damagedEvents":{"$ref":"#/definitions/count"},"selectedEvents":{"$ref":"#/definitions/count"},"matchedEvents":{"$ref":"#/definitions/nullableCount"},"emittedMatches":{"$ref":"#/definitions/nullableCount"},"contextEvents":{"$ref":"#/definitions/nullableCount"},"timeExcludedMissing":{"$ref":"#/definitions/count"},"diagnosticCounts":{"type":"object","additionalProperties":{"$ref":"#/definitions/count"}}}},
+    "sources":{"type":"array","maxItems":1024,"items":{"type":"object","additionalProperties":false,"required":["id","label","kind","status","bytesRead","eventsRead","damagedEvents","errors"],"properties":{"id":{"$ref":"#/definitions/sourceId"},"label":{"type":"string"},"kind":{"enum":["file","stdin"]},"status":{"enum":["complete","partial","failed"]},"bytesRead":{"$ref":"#/definitions/count"},"eventsRead":{"$ref":"#/definitions/count"},"damagedEvents":{"$ref":"#/definitions/count"},"errors":{"type":"array","uniqueItems":true,"items":{"enum":["INPUT_NOT_FOUND","INPUT_PERMISSION","INPUT_READ","UNSAFE_PATH","UNSUPPORTED_ENCODING","SOURCE_TRUNCATED","GZIP_INVALID","SOURCE_BYTE_LIMIT","GZIP_RATIO_LIMIT","NOT_AVAILABLE"]}}}}},
+    "summary":{"type":"object","additionalProperties":false,"required":["severity","earliest","latest","timedEvents","untimedEvents"],"properties":{"severity":{"$ref":"#/definitions/severityCounts"},"earliest":{"$ref":"#/definitions/utc"},"latest":{"$ref":"#/definitions/utc"},"timedEvents":{"$ref":"#/definitions/count"},"untimedEvents":{"$ref":"#/definitions/count"}}},
+    "events":{"type":"array","items":{"$ref":"#/definitions/event"}},
+    "groups":{"type":"array","maxItems":10000,"items":{"$ref":"#/definitions/group"}},
+    "correlations":{"type":"array","maxItems":10000,"items":{"$ref":"#/definitions/correlation"}},
+    "timeline":{"type":"array","maxItems":10000,"items":{"type":"object","additionalProperties":false,"required":["start","end","count","severity"],"properties":{"start":{"type":"string","format":"date-time"},"end":{"$ref":"#/definitions/utc"},"count":{"$ref":"#/definitions/count"},"severity":{"$ref":"#/definitions/severityCounts"}}}},
+    "analysis":{"type":"object","additionalProperties":false,"required":["groupingMode","overflowGroupEvents","overflowCorrelationMemberships","overflowTimelineEvents","ungroupableEvents","uncorrelatedEvents","displayTruncated"],"properties":{"groupingMode":{"enum":[null,"fingerprint","severity","source","request-id","trace-id","span-id"]},"overflowGroupEvents":{"$ref":"#/definitions/count"},"overflowCorrelationMemberships":{"$ref":"#/definitions/count"},"overflowTimelineEvents":{"$ref":"#/definitions/count"},"ungroupableEvents":{"$ref":"#/definitions/count"},"uncorrelatedEvents":{"$ref":"#/definitions/count"},"displayTruncated":{"type":"boolean"}}}
+  },
+  "definitions": {
+    "count":{"type":"integer","minimum":0,"maximum":9007199254740991},
+    "nullableCount":{"anyOf":[{"$ref":"#/definitions/count"},{"type":"null"}]},
+    "utc":{"type":["string","null"],"pattern":"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"},
+    "sourceId":{"type":"string","pattern":"^s[0-9]{6}$"},
+    "eventId":{"type":"string","pattern":"^s[0-9]{6}:e[1-9][0-9]*$"},
+    "nullableText":{"type":["string","null"]},
+    "severity":{"enum":["trace","debug","info","warn","error","fatal","unknown"]},
+    "severityCounts":{"type":"object","additionalProperties":false,"required":["trace","debug","info","warn","error","fatal","unknown"],"properties":{"trace":{"$ref":"#/definitions/count"},"debug":{"$ref":"#/definitions/count"},"info":{"$ref":"#/definitions/count"},"warn":{"$ref":"#/definitions/count"},"error":{"$ref":"#/definitions/count"},"fatal":{"$ref":"#/definitions/count"},"unknown":{"$ref":"#/definitions/count"}}},
+    "event":{"type":"object","additionalProperties":false,"required":["schemaVersion","id","source","position","timestamp","severity","severityOriginal","message","service","logger","correlation","attributes","raw","format","diagnostics","redaction","match"],"properties":{
+      "schemaVersion":{"const":"loglens.event.v1"},"id":{"$ref":"#/definitions/eventId"},
+      "source":{"type":"object","additionalProperties":false,"required":["id","label","kind"],"properties":{"id":{"$ref":"#/definitions/sourceId"},"label":{"type":"string"},"kind":{"enum":["file","stdin"]}}},
+      "position":{"type":"object","additionalProperties":false,"required":["lineStart","lineEnd","byteStart","byteEnd"],"properties":{"lineStart":{"type":"integer","minimum":1},"lineEnd":{"type":"integer","minimum":1},"byteStart":{"$ref":"#/definitions/count"},"byteEnd":{"$ref":"#/definitions/count"}}},
+      "timestamp":{"anyOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["epochMs","isoUtc","original","interpretation"],"properties":{"epochMs":{"type":"integer","minimum":-62135596800000,"maximum":253402300799999},"isoUtc":{"type":"string","format":"date-time"},"original":{"type":"string"},"interpretation":{"enum":["epoch-ms","explicit-offset","assumed-offset"]}}}]},
+      "severity":{"$ref":"#/definitions/severity"},"severityOriginal":{"$ref":"#/definitions/nullableText"},"message":{"type":"string"},"service":{"$ref":"#/definitions/nullableText"},"logger":{"$ref":"#/definitions/nullableText"},
+      "correlation":{"type":"object","additionalProperties":false,"required":["requestId","traceId","spanId"],"properties":{"requestId":{"$ref":"#/definitions/nullableText"},"traceId":{"$ref":"#/definitions/nullableText"},"spanId":{"$ref":"#/definitions/nullableText"}}},
+      "attributes":{"type":"object"},"raw":{"anyOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["text","complete","byteLength","sha256"],"properties":{"text":{"type":"string"},"complete":{"type":"boolean"},"byteLength":{"$ref":"#/definitions/count"},"sha256":{"type":["string","null"],"pattern":"^[a-f0-9]{64}$"}}}]},
+      "format":{"enum":["jsonl","text"]},"diagnostics":{"type":"array","maxItems":64,"items":{"type":"object","additionalProperties":false,"required":["code","line","field"],"properties":{"code":{"type":"string"},"line":{"type":"integer","minimum":1},"field":{"$ref":"#/definitions/nullableText"}}}},
+      "redaction":{"type":"object","additionalProperties":false,"required":["enabled","changed","displayTruncated"],"properties":{"enabled":{"type":"boolean"},"changed":{"type":"boolean"},"displayTruncated":{"type":"boolean"}}},"match":{"enum":["match","context"]}
+    }},
+    "group":{"type":"object","additionalProperties":false,"required":["key","mode","value","count","representative","firstSeen","lastSeen"],"properties":{"key":{"type":"string"},"mode":{"enum":["fingerprint","severity","source","request-id","trace-id","span-id"]},"value":{"$ref":"#/definitions/nullableText"},"count":{"$ref":"#/definitions/count"},"representative":{"$ref":"#/definitions/event"},"firstSeen":{"$ref":"#/definitions/utc"},"lastSeen":{"$ref":"#/definitions/utc"}}},
+    "correlation":{"type":"object","additionalProperties":false,"required":["key","kind","value","count","representative","firstSeen","lastSeen"],"properties":{"key":{"type":"string","pattern":"^(request|trace|span):g[1-9][0-9]*$"},"kind":{"enum":["request","trace","span"]},"value":{"type":"string"},"count":{"$ref":"#/definitions/count"},"representative":{"$ref":"#/definitions/event"},"firstSeen":{"$ref":"#/definitions/utc"},"lastSeen":{"$ref":"#/definitions/utc"}}}
+  }
+}

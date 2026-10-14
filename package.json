@@ -1,0 +1,60 @@
+{
+  "name": "@thebraz/loglens",
+  "version": "0.1.0-beta.1",
+  "private": true,
+  "gypfile": false,
+  "description": "Local log inspection, literal search, conservative grouping and static reports",
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "license": "MIT",
+  "author": "Braz",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thebraz/LogLens.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thebraz/LogLens/issues"
+  },
+  "homepage": "https://github.com/thebraz/LogLens#readme",
+  "bin": {
+    "loglens": "dist/bin.js"
+  },
+  "files": [
+    "dist/**/*.js",
+    "native/*/loglens_fs.node",
+    "native/*/manifest.json",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "docs/SUPPORTED_PLATFORMS.md",
+    "docs/USER_CONTRACT.md",
+    "docs/RELEASE_NOTES.md",
+    "schemas/loglens.output.v1.schema.json"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "build:native": "node scripts/build-native.mjs",
+    "lint": "eslint .",
+    "test": "npm run build && vitest run",
+    "check": "npm run typecheck && npm run lint && npm test",
+    "security:filesystem": "node scripts/audit-filesystem-race.mjs",
+    "check:stage3": "npm run check && npm run security:filesystem",
+    "verify:stage2": "node scripts/verify-stage2.mjs",
+    "benchmark": "node benchmarks/run.mjs",
+    "verify:package": "node scripts/verify-package.mjs",
+    "verify:release-docs": "node scripts/verify-release-docs.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "eslint": "10.12.0",
+    "node-gyp": "13.1.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.2",
+    "vitest": "5.0.4"
+  }
+}

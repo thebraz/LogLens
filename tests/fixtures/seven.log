@@ -1,0 +1,7 @@
+{"timestamp":"2026-10-13T09:00:00-03:00","level":"trace","message":"start"}
+{"timestamp":"2026-10-13T08:00:00Z","level":"DEBUG","message":"debug"}
+2026-10-13T10:00:00Z INFO ready
+[WARN] cache miss
+ERROR failed
+CRITICAL stopped
+hello world

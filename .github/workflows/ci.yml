@@ -1,0 +1,29 @@
+name: Windows experimental beta
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2025
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Complete Windows acceptance
+        run: ./scripts/verify-windows.ps1
+      - name: CLI and output schema
+        run: npm run verify:stage2
+      - name: Mandatory filesystem postconditions
+        if: always()
+        run: npm run security:filesystem

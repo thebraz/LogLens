@@ -1,0 +1,30 @@
+name: Original multiplatform Stage 4 (unfinished)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025, macos-14]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run build:native
+      - run: npm run check
+      - run: npm run verify:release-docs
+      - run: npm run verify:package
+      # Keep the known confinement failures visible, including when an earlier step fails.
+      - name: Mandatory filesystem security gate
+        if: always()
+        run: npm run security:filesystem
